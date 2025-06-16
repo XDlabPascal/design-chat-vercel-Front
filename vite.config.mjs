@@ -1,3 +1,4 @@
+// vite.config.mjs  (ESM)
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
