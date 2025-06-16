@@ -5,10 +5,11 @@ export default function ChatApp() {
     { sender: 'bot', text: "Bonjour ! Je suis ton IA d'évaluation en Design. Peux-tu me dire ce que tu sais sur le Design UX/UI ?" },
   ]);
   const [input, setInput] = useState('');
+  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
   const sendMessage = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || !email.trim()) return;
     const userMessage = { sender: 'user', text: input };
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
@@ -16,13 +17,13 @@ export default function ChatApp() {
 
     try {
       const response = await fetch("https://design-chat-render-backend.onrender.com/message", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({ message, email })
-});
-      const data = await res.json();
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ message: input, email })
+      });
+      const data = await response.json();
       const botReply = { sender: 'bot', text: data.reply };
       setMessages((prev) => [...prev, botReply]);
     } catch (err) {
@@ -33,6 +34,15 @@ export default function ChatApp() {
 
   return (
     <div className="max-w-xl mx-auto p-4">
+      <div className="mb-2">
+        <input
+          type="email"
+          className="w-full border rounded p-2 mb-2"
+          placeholder="Ton adresse email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </div>
       <div className="h-[500px] overflow-y-auto p-4 space-y-2 bg-white shadow rounded-lg">
         {messages.map((msg, i) => (
           <div key={i} className={`text-${msg.sender === 'bot' ? 'left' : 'right'} mb-2`}>
