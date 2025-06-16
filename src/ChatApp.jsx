@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 export default function ChatApp() {
   const [messages, setMessages] = useState([
-    { sender: 'bot', text: "Bonjour ! Je suis ton IA d'évaluation en Design. Peux-tu me dire ce que tu sais sur le Design UX/UI ?" },
+    { sender: 'bot', text: "Bonjour ! Je suis ton IA d'évaluation en expérience client. Je vais te poser quelques questions pour voir ou tu en es sur ce sujet." },
   ]);
   const [input, setInput] = useState('');
   const [email, setEmail] = useState('');
