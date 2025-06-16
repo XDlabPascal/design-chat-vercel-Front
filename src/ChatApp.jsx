@@ -15,11 +15,13 @@ export default function ChatApp() {
     setLoading(true);
 
     try {
-      const res = await fetch('https://design-chat-render-backend.onrender.com/message', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input }),
-      });
+      const response = await fetch("https://design-chat-render-backend.onrender.com/message", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({ message, email })
+});
       const data = await res.json();
       const botReply = { sender: 'bot', text: data.reply };
       setMessages((prev) => [...prev, botReply]);
