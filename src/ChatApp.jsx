@@ -15,7 +15,7 @@ export default function ChatApp() {
     setLoading(true);
 
     try {
-      const res = await fetch('https://your-backend-api.com/message', {
+      const res = await fetch('https://design-chat-2.onrender.com/message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: input }),
