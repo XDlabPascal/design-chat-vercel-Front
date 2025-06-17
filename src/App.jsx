@@ -1,11 +1,9 @@
-// ───────────────────────────────────────────────────────────────
-// App.jsx  – point d'entrée React + routes
-// ───────────────────────────────────────────────────────────────
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ChatApp from './ChatApp';
 import Synthese from './Synthese';
 
 export default function App() {
+  console.log('Rendering App');
   return (
     <Router>
       <Routes>
