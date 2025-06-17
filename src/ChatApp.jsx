@@ -64,7 +64,7 @@ export default function ChatApp() {
     <div className="h-screen flex flex-col max-w-3xl mx-auto p-4">
       <div className="flex-1 overflow-y-auto bg-white shadow rounded p-4 space-y-2">
         {messages.map((m, i) => (
-          <div key={i} className={`text-${m.sender === 'bot' ? 'left' : 'right'}`}>
+          <div key={i} className={m.sender === 'bot' ? 'text-left' : 'text-right'}>
             <span
               className={`inline-block p-2 rounded-lg ${
                 m.sender === 'bot' ? 'bg-gray-200' : 'bg-[#F16E00] text-white'
