@@ -1,164 +1,143 @@
-import { useState } from "react";
-
-/* Couleur orange réutilisable */
-const ORANGE = "#F16E00";
+import { useState } from 'react';
 
 export default function ChatApp() {
-  /* PHASE = "chat" | "email" | "done" */
-  const [phase, setPhase] = useState("chat");
+  const [phase, setPhase] = useState('chat'); // 'chat' | 'summary' | 'done'
   const [messages, setMessages] = useState([
-    {
-      sender: "bot",
-      text: "Bonjour, je suis ton IA pour évaluer tes connaissances en conception centrée client. Que peux-tu me dire sur ce sujet ?",
-    },
+    { sender: 'bot', text: "Bonjour, je suis ton IA pour évaluer tes connaissances en conception centrée client. Que peux-tu me dire sur ce sujet ?" }
   ]);
-  const [input, setInput] = useState("");
-  const [email, setEmail] = useState("");
+  const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [turn, setTurn] = useState(0); // nombre de réponses utilisateur
+  const [summary, setSummary] = useState(null);
+  const [email, setEmail] = useState('');
+  const [sent, setSent] = useState(false);
 
-  /* Envoi d’un message utilisateur au backend */
   const sendMessage = async () => {
     if (!input.trim()) return;
 
-    // Ajoute le message utilisateur
-    setMessages((prev) => [...prev, { sender: "user", text: input }]);
+    const userMessage = { sender: 'user', text: input };
+    setMessages((prev) => [...prev, userMessage]);
+    setInput('');
     setLoading(true);
 
     try {
-      const response = await fetch(
-        "https://design-chat-render-backend.onrender.com/message",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: input, email: email || "" }),
-        }
-      );
-      const data = await response.json();
+      const res = await fetch("https://design-chat-render-backend.onrender.com/message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: [...messages, userMessage] })
+      });
 
-      // Ajoute la réponse IA
-      setMessages((prev) => [...prev, { sender: "bot", text: data.reply }]);
+      const data = await res.json();
 
-      // Incrémente le nombre de tours utilisateur
-      const newTurn = turn + 1;
-      setTurn(newTurn);
-
-      /* Après 5 réponses utilisateur, passe en phase email */
-      if (newTurn >= 5 && !email) setPhase("email");
+      if (data.phase === 'summary') {
+        setSummary(data.summary); // objet { niveau, videos: [], synthese }
+        setPhase('summary');
+      } else {
+        const botReply = { sender: 'bot', text: data.reply };
+        setMessages((prev) => [...prev, botReply]);
+      }
     } catch (err) {
-      setMessages((prev) => [
-        ...prev,
-        { sender: "bot", text: "Erreur de connexion au serveur." },
-      ]);
+      setMessages((prev) => [...prev, { sender: 'bot', text: "Erreur serveur ou IA inaccessible." }]);
     }
 
     setLoading(false);
-    setInput("");
   };
 
-  /* Envoi de l’email au backend pour déclencher la synthèse */
   const sendEmail = async () => {
-    if (!email.trim()) return;
     setLoading(true);
-
     try {
-      // envoie un message vide pour déclencher la synthèse + mail
-      await fetch("https://design-chat-render-backend.onrender.com/message", {
+      const res = await fetch("https://design-chat-render-backend.onrender.com/send-summary", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: "",
           email,
-        }),
+          summary
+        })
       });
-      setPhase("done");
-    } catch (err) {
-      alert("Erreur d’envoi de l’email.");
-    }
 
+      if (res.ok) {
+        setSent(true);
+        setPhase('done');
+      }
+    } catch (e) {
+      alert("Erreur lors de l'envoi de l'e-mail.");
+    }
     setLoading(false);
   };
 
-  /* ---------- RENDU ---------- */
-  if (phase === "email") {
-    /* Vue de collecte e-mail */
-    return (
-      <div className="w-full h-screen flex flex-col items-center justify-center gap-4 p-4">
-        <h2 className="text-xl font-semibold text-center">
-          Merci ! Pour recevoir ta synthèse personnalisée, indique ton e-mail :
-        </h2>
-        <input
-          type="email"
-          className="w-full max-w-md border rounded p-2"
-          placeholder="ton.email@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <button
-          onClick={sendEmail}
-          disabled={loading || !email.trim()}
-          className="px-6 py-3 rounded text-white disabled:opacity-50"
-          style={{ backgroundColor: ORANGE }}
-        >
-          Recevoir ma synthèse
-        </button>
-      </div>
-    );
-  }
-
-  if (phase === "done") {
-    /* Vue de confirmation */
-    return (
-      <div className="w-full h-screen flex items-center justify-center">
-        <h2 className="text-2xl font-semibold text-center">
-          Merci ! Ta synthèse va arriver par e-mail sous peu 🚀
-        </h2>
-      </div>
-    );
-  }
-
-  /* Vue Chat */
   return (
-    <div className="w-full h-screen flex flex-col">
-      {/* Zone messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-white shadow">
-        {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={`text-${
-              msg.sender === "bot" ? "left" : "right"
-            } mb-2`}
-          >
-            <span
-              className={`inline-block p-2 rounded-lg ${
-                msg.sender === "bot" ? "bg-gray-200" : "bg-orange-100"
-              }`}
-            >
-              {msg.text}
-            </span>
+    <div className="max-w-3xl mx-auto p-4 h-screen flex flex-col">
+      <div className="flex-1 overflow-y-auto bg-white p-4 shadow rounded-lg space-y-2">
+        {phase === 'chat' &&
+          messages.map((msg, i) => (
+            <div key={i} className={`text-${msg.sender === 'bot' ? 'left' : 'right'} mb-2`}>
+              <span className={`inline-block p-2 rounded-lg ${msg.sender === 'bot' ? 'bg-gray-200' : 'bg-blue-200'}`}>
+                {msg.text}
+              </span>
+            </div>
+          ))
+        }
+
+        {phase === 'summary' && summary && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">🎯 Niveau estimé :</h2>
+            <p>{summary.niveau}</p>
+
+            <h2 className="text-xl font-semibold">📺 Playlist recommandée :</h2>
+            <ul className="list-disc list-inside space-y-1">
+              {summary.videos.map((url, i) => (
+                <li key={i}><a href={url} className="text-blue-600 underline" target="_blank" rel="noopener noreferrer">{url}</a></li>
+              ))}
+            </ul>
+
+            <h2 className="text-xl font-semibold">📝 Synthèse :</h2>
+            <p>{summary.synthese}</p>
+
+            <div className="mt-6 space-y-2">
+              <label className="block font-medium">Entrez votre e-mail pour recevoir la synthèse :</label>
+              <input
+                type="email"
+                className="border rounded w-full p-2"
+                placeholder="votre@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <button
+                onClick={sendEmail}
+                className="bg-[#F16E00] text-white px-4 py-2 rounded hover:opacity-90"
+                disabled={loading}
+              >
+                Envoyer la synthèse
+              </button>
+            </div>
           </div>
-        ))}
+        )}
+
+        {phase === 'done' && (
+          <div className="text-green-700 font-semibold">
+            ✅ Synthèse envoyée par e-mail !
+          </div>
+        )}
       </div>
 
-      {/* Zone saisie */}
-      <div className="p-4 flex gap-2">
-        <input
-          type="text"
-          className="flex-1 border rounded p-2"
-          placeholder="Écris ta réponse…"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-        />
-        <button
-          onClick={sendMessage}
-          disabled={loading}
-          className="px-4 py-2 rounded text-white disabled:opacity-50"
-          style={{ backgroundColor: ORANGE }}
-        >
-          Envoyer
-        </button>
-      </div>
+      {phase === 'chat' && (
+        <div className="mt-4 flex items-center gap-2">
+          <input
+            type="text"
+            className="flex-1 border rounded p-2"
+            placeholder="Écris ta réponse..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+          />
+          <button
+            onClick={sendMessage}
+            disabled={loading}
+            className="px-4 py-2 bg-[#F16E00] text-white rounded hover:opacity-90 disabled:opacity-50"
+          >
+            Envoyer
+          </button>
+        </div>
+      )}
     </div>
   );
 }
