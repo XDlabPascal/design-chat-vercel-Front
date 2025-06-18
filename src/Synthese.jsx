@@ -1,60 +1,50 @@
-import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Synthese() {
-  return (
-    <div className="font-sans p-10">
-      <h1 className="text-2xl font-bold mb-4">Synthèse</h1>
-      <p>Voici un résumé de ta progression...</p>
-    </div>
-  );
-}
-
-export default function Synthese() {
-  const [summary, setSummary] = useState('');
-  const [email,   setEmail]   = useState('');
-  const [sent,    setSent]    = useState(false);
-
-  // récupère la synthèse
-  useEffect(()=>{
-    fetch('https://design-chat-render-backend.onrender.com/summary')
-      .then(r=>r.json())
-      .then(d=>setSummary(d.summary||'Synthèse indisponible…'))
-      .catch(()=>setSummary('Erreur de récupération.'));
-  },[]);
-
-  const sendEmail = async () => {
-    const res = await fetch('https://design-chat-render-backend.onrender.com/send-email',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ email })
-    });
-    const out = await res.json();
-    if(out.success) setSent(true);
-  };
+  const navigate = useNavigate();
 
   return (
-    <div className="w-[80%] mx-auto p-6 space-y-6">
-      <h2 className="text-2xl font-bold text-[#F16E00]">📝 Synthèse</h2>
-      <pre className="whitespace-pre-wrap bg-white p-4 rounded shadow">{summary}</pre>
+    <div className="font-sans min-h-screen bg-[#fffaf5] p-8 text-gray-900">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-4xl font-extrabold mb-8 text-[#F16E00]">📝 Synthèse UX</h1>
 
-      {!sent ? (
-        <div className="space-y-4">
-          <input
-            type="email"
-            className="border p-2 rounded w-full"
-            placeholder="Ton e-mail pour recevoir la synthèse"
-            value={email}
-            onChange={e=>setEmail(e.target.value)}
-          />
+        <div className="bg-white p-6 rounded-2xl shadow-lg space-y-6">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">🎯</span>
+            <div>
+              <p className="text-lg font-semibold text-gray-700">Niveau estimé</p>
+              <p className="text-gray-600">Intermédiaire</p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">📺</span>
+            <div>
+              <p className="text-lg font-semibold text-gray-700">Playlist recommandée</p>
+              <p className="text-gray-600">“Améliorer l’UX avec des micro-interactions”</p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">📝</span>
+            <div>
+              <p className="text-lg font-semibold text-gray-700">Résumé personnalisé</p>
+              <p className="text-gray-600">
+                Tu as montré une bonne compréhension des principes fondamentaux de l’UX. Tu sembles à l’aise avec les notions de recherche utilisateur, d’accessibilité et de hiérarchie de l'information. Tu pourrais approfondir la conception émotionnelle et les animations UX.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-10 text-center">
           <button
-            onClick={sendEmail}
-            className="bg-[#F16E00] text-white px-4 py-2 rounded hover:opacity-90">
-            Envoyer par e-mail
+            onClick={() => navigate('/')}
+            className="bg-[#F16E00] hover:bg-orange-600 text-white px-6 py-3 rounded-xl text-lg font-semibold transition"
+          >
+            🔁 Recommencer
           </button>
         </div>
-      ) : (
-        <p className="text-green-600 font-semibold">Synthèse envoyée 🎉</p>
-      )}
+      </div>
     </div>
   );
 }
