@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Facultatif : tu peux forcer Inter si tu veux */
+/* Styles globaux éventuels ici */
 body {
   @apply font-sans;
 }
