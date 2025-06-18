@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Facultatif : tu peux forcer Inter si tu veux */
+body {
+  @apply font-sans;
+}
