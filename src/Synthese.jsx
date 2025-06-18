@@ -1,6 +1,15 @@
 import { useEffect, useState } from 'react';
 
 export default function Synthese() {
+  return (
+    <div className="font-sans p-10">
+      <h1 className="text-2xl font-bold mb-4">Synthèse</h1>
+      <p>Voici un résumé de ta progression...</p>
+    </div>
+  );
+}
+
+export default function Synthese() {
   const [summary, setSummary] = useState('');
   const [email,   setEmail]   = useState('');
   const [sent,    setSent]    = useState(false);
