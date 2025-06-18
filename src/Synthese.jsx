@@ -24,7 +24,7 @@ export default function Synthese() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-6">
+    <div className="w-[80%] mx-auto p-6 space-y-6">
       <h2 className="text-2xl font-bold text-[#F16E00]">📝 Synthèse</h2>
       <pre className="whitespace-pre-wrap bg-white p-4 rounded shadow">{summary}</pre>
 
