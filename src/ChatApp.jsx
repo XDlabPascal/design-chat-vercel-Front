@@ -37,7 +37,7 @@ export default function ChatApp() {
   };
 
   return (
-    <div className="h-screen flex flex-col max-w-3xl mx-auto p-4">
+   <div className="h-screen flex flex-col w-[80%] mx-auto p-4">
       <div className="flex-1 overflow-y-auto bg-white shadow rounded p-4 space-y-2">
         {history.map((m,i)=>(
           <div key={i} className={m.role==='assistant'?'text-left':'text-right'}>
