@@ -6,7 +6,7 @@ export default function ChatApp() {
 
   // historique complet : [{role: 'assistant'|'user', content: '…'}]
   const [history, setHistory] = useState([
-    { role: 'assistant', content: "Bonjour ! Je suis ton IA pour évaluer tes connaissances sur le design. Pour commencer, que peux tu me dire sur ce sujet ?" }
+    { role: 'assistant', content: "Bonjour ! Je suis ton IA pour évaluer tes connaissances sur le design. Pour commencer, peux tu me dire ce que c'est selon toi ?" }
   ]);
   const [input, setInput]   = useState('');
   const [loading, setLoad ] = useState(false);
