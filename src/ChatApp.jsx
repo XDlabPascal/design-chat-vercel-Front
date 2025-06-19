@@ -16,44 +16,48 @@ export default function ChatApp() {
   const [transitionDone, setTransitionDone] = useState(false); // message ⏳ déjà envoyé ?
 
   /* ----- envoi du message utilisateur et appel backend ----- */
-  const send = async () => {
-    if (!input.trim()) return;
+ const send = async () => {
+  if (!input.trim()) return;
 
-    const newHistory = [...history, { role: 'user', content: input }];
-    setHistory(newHistory);
-    setInput('');
-    setLoad(true);
+  const newHistory = [...history, { role: 'user', content: input }];
+  setHistory(newHistory);
+  setInput('');
+  setLoad(true);
 
-    const res = await fetch(
-      'https://design-chat-render-backend.onrender.com/message',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ history: newHistory }),
-      },
-    );
+  const res = await fetch(
+    'https://design-chat-render-backend.onrender.com/message',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ history: newHistory }),
+    },
+  );
 
-    const { reply, done, error } = await res.json();
+  const { reply, done, error } = await res.json();
 
-    /* 1. ajoute la réponse IA ou l'erreur */
-    if (error) {
-      setHistory((h) => [...h, { role: 'assistant', content: error }]);
+  if (error) {
+    setHistory(h => [...h, { role: 'assistant', content: error }]);
+  } else {
+    // Si c'est la dernière réponse, on ne montre pas la synthèse dans le chat, seulement la transition
+    if (done) {
+      if (!transitionDone) {
+        setTransitionDone(true);
+        setHistory(h => [
+          ...h,
+          { role: 'assistant', content: '⏳ Merci ! Je prépare ta synthèse…' },
+        ]);
+        // stocke la synthèse dans un état global, contexte ou récupère via API dans /synthese
+        // navigate après délai
+        setTimeout(() => navigate('/synthese'), 2000);
+      }
     } else {
-      setHistory((h) => [...h, { role: 'assistant', content: reply }]);
+      // sinon on affiche la réponse classique (question suivante)
+      setHistory(h => [...h, { role: 'assistant', content: reply }]);
     }
+  }
 
-    /* 2. message de transition + redirection */
-    if (done && !transitionDone) {
-      setTransitionDone(true);
-      setHistory((h) => [
-        ...h,
-        { role: 'assistant', content: '⏳ Merci ! Je prépare ta synthèse…' },
-      ]);
-      setTimeout(() => navigate('/synthese'), 2000);
-    }
-
-    setLoad(false);
-  };
+  setLoad(false);
+};
 
   /* -------------------- rendu UI ---------------------------- */
   return (
