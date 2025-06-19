@@ -74,7 +74,7 @@ export default function Synthese() {
     <div className="font-sans min-h-screen bg-[#fffaf5] p-8 text-gray-900">
       <div className="max-w-4xl mx-auto space-y-8">
 
-        <h1 className="text-4xl font-extrabold text-[#F16E00]">📝 Synthèse UX</h1>
+        <h1 className="text-4xl font-extrabold text-[#F16E00]">Résultat de l'auto-évaluation sur le Design</h1>
 
         {/* cartes niveau / forces / faiblesses / playlist -------------- */}
         <div className="bg-white p-6 rounded-2xl shadow-lg flex gap-3">
