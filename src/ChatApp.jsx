@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 export default function ChatApp() {
   const navigate = useNavigate();
-
-  // historique complet : [{role: 'assistant'|'user', content: '…'}]
+  const [transitionDone, setTransitionDone] = useState(false);
   const [history, setHistory] = useState([
     { role: 'assistant', content: "Bonjour ! Je suis ton IA pour évaluer tes connaissances sur le design. Pour commencer, peux tu me dire ce que c'est selon toi ?" }
   ]);
