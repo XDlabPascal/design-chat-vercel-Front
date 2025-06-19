@@ -10,7 +10,8 @@ export default function ChatApp() {
   ]);
   const [input, setInput]   = useState('');
   const [loading, setLoad ] = useState(false);
-
+const [transitionDone, setTransitionDone] = useState(false);
+  
   const send = async () => {
     if (!input.trim()) return;
 
@@ -27,6 +28,12 @@ export default function ChatApp() {
 
     const { reply, done, error } = await res.json();
 
+ if (conversationComplete && !transitionDone) {
+  setHistory(h => [...h, { role: 'assistant', content: '⏳ Merci ! Je prépare ta synthèse…' }]);
+  setTransitionDone(true); // pour ne pas répéter
+  setTimeout(() => navigate('/synthese'), 2000);
+}
+    
     if (error) {
       setHistory(h => [...h, { role: 'assistant', content: error }]);
     } else {
