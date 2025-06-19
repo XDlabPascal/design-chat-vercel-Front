@@ -70,9 +70,10 @@ export default function ChatApp() {
                   ? 'bg-gray-200'
                   : 'bg-[#F16E00] text-white'
               }`}
-            >
-              {m.content}
-            </span>
+              dangerouslySetInnerHTML={{
+                __html: m.content.replace(/\n/g, '<br />'),
+              }}
+            />
           </div>
         ))}
       </div>
