@@ -10,7 +10,6 @@ export default function ChatApp() {
   ]);
   const [input, setInput]   = useState('');
   const [loading, setLoad ] = useState(false);
-const [transitionDone, setTransitionDone] = useState(false);
   
   const send = async () => {
     if (!input.trim()) return;
