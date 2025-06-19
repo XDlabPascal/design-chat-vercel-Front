@@ -12,54 +12,63 @@ export default function ChatApp() {
     },
   ]);
   const [input, setInput] = useState('');
-  const [loading, setLoad] = useState(false);
-  const [transitionDone, setTransitionDone] = useState(false); // message ⏳ déjà envoyé ?
+  const [loading, setLoading] = useState(false);
+  const [transitionDone, setTransitionDone] = useState(false);
 
-  /* ----- envoi du message utilisateur et appel backend ----- */
- const send = async () => {
-  if (!input.trim()) return;
+  // Send message to backend and handle response
+  const send = async () => {
+    if (!input.trim()) return;
 
-  const newHistory = [...history, { role: 'user', content: input }];
-  setHistory(newHistory);
-  setInput('');
-  setLoad(true);
+    const newHistory = [...history, { role: 'user', content: input.trim() }];
+    setHistory(newHistory);
+    setInput('');
+    setLoading(true);
 
-  const res = await fetch(
-    'https://design-chat-render-backend.onrender.com/message',
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ history: newHistory }),
-    },
-  );
+    try {
+      const res = await fetch(
+        'https://design-chat-render-backend.onrender.com/message',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ history: newHistory }),
+        }
+      );
 
-  const { reply, done, error } = await res.json();
-
-  if (error) {
-    setHistory(h => [...h, { role: 'assistant', content: error }]);
-  } else {
-    // Si c'est la dernière réponse, on ne montre pas la synthèse dans le chat, seulement la transition
-    if (done) {
-      if (!transitionDone) {
-        setTransitionDone(true);
-        setHistory(h => [
-          ...h,
-          { role: 'assistant', content: '⏳ Merci ! Je prépare ta synthèse…' },
-        ]);
-        // stocke la synthèse dans un état global, contexte ou récupère via API dans /synthese
-        // navigate après délai
-        setTimeout(() => navigate('/synthese'), 2000);
+      if (!res.ok) {
+        throw new Error('Erreur réseau');
       }
-    } else {
-      // sinon on affiche la réponse classique (question suivante)
-      setHistory(h => [...h, { role: 'assistant', content: reply }]);
+
+      const { reply, done, error } = await res.json();
+
+      if (error) {
+        setHistory(h => [...h, { role: 'assistant', content: error }]);
+      } else if (done) {
+        if (!transitionDone) {
+          setTransitionDone(true);
+          setHistory(h => [
+            ...h,
+            { role: 'assistant', content: '⏳ Merci ! Je prépare ta synthèse…' },
+          ]);
+          setTimeout(() => navigate('/synthese'), 2000);
+        }
+      } else {
+        setHistory(h => [...h, { role: 'assistant', content: reply }]);
+      }
+    } catch (err) {
+      setHistory(h => [
+        ...h,
+        { role: 'assistant', content: err.message || 'Erreur inconnue.' },
+      ]);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
-  setLoad(false);
-};
+  // Handle pressing Enter in the input
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !loading) send();
+  };
 
-  /* -------------------- rendu UI ---------------------------- */
   return (
     <div className="h-screen flex flex-col w-[80%] mx-auto p-4">
       <div className="flex-1 overflow-y-auto bg-white shadow rounded p-4 space-y-2">
@@ -74,6 +83,7 @@ export default function ChatApp() {
                   ? 'bg-gray-200'
                   : 'bg-[#F16E00] text-white'
               }`}
+              aria-label={m.role === 'assistant' ? 'Message IA' : 'Votre message'}
               dangerouslySetInnerHTML={{
                 __html: m.content.replace(/\n/g, '<br />'),
               }}
@@ -82,21 +92,23 @@ export default function ChatApp() {
         ))}
       </div>
 
-      <div className="mt-4 flex gap-2">
+      <div className="mt-4 flex gap-2 items-center">
         <input
           className="flex-1 border rounded p-2"
           placeholder="Ta réponse…"
           value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && send()}
+          aria-label="Champ de saisie"
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
           disabled={loading}
         />
         <button
           onClick={send}
-          disabled={loading}
+          disabled={loading || !input.trim()}
           className="px-4 py-2 bg-[#F16E00] text-white rounded disabled:opacity-50"
+          aria-label="Envoyer le message"
         >
-          Envoyer
+          {loading ? 'Envoi…' : 'Envoyer'}
         </button>
       </div>
     </div>
