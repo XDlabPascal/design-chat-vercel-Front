@@ -8,7 +8,7 @@ export default function ChatApp() {
     {
       role: 'assistant',
       content:
-        "Bonjour ! Je suis ton IA pour évaluer tes connaissances sur le design. Pour commencer, peux-tu me dire ce que c'est selon toi ?",
+        "Bonjour !\n Je suis ton IA pour évaluer tes connaissances sur le design.\n Pour commencer, peux-tu me dire ce que c'est selon toi ?",
     },
   ]);
   const [input, setInput] = useState('');
