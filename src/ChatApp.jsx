@@ -1,116 +1,84 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import './ChatApp.css';
 
-export default function ChatApp() {
-  const navigate = useNavigate();
-
-  const [history, setHistory] = useState([
-    {
-      role: 'assistant',
-      content:
-        "Bonjour ! Je suis ton IA pour évaluer tes connaissances sur le design. Pour commencer, peux-tu me dire ce que c'est selon toi ?",
-    },
-  ]);
+function ChatApp() {
   const [input, setInput] = useState('');
+  const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [transitionDone, setTransitionDone] = useState(false);
+  const messagesEndRef = useRef(null);
 
-  // Send message to backend and handle response
-  const send = async () => {
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    // Lancement automatique de la 1ʳᵉ question depuis le backend
+    const startChat = async () => {
+      try {
+        const response = await fetch('http://localhost:10000/message', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ history: [] }),
+        });
+        const data = await response.json();
+        setMessages([{ role: 'assistant', content: data.reply }]);
+      } catch (error) {
+        console.error('Erreur au démarrage du chat :', error);
+      }
+    };
+    startChat();
+  }, []);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleSend = async () => {
     if (!input.trim()) return;
 
-    const newHistory = [...history, { role: 'user', content: input.trim() }];
-    setHistory(newHistory);
+    const newMessages = [...messages, { role: 'user', content: input }];
+    setMessages(newMessages);
     setInput('');
     setLoading(true);
 
     try {
-      const res = await fetch(
-        'https://design-chat-render-backend.onrender.com/message',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ history: newHistory }),
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error('Erreur réseau');
-      }
-
-      const { reply, done, error } = await res.json();
-
-      if (error) {
-        setHistory(h => [...h, { role: 'assistant', content: error }]);
-      } else if (done) {
-        if (!transitionDone) {
-          setTransitionDone(true);
-          setHistory(h => [
-            ...h,
-            { role: 'assistant', content: '⏳ Merci ! Je prépare ta synthèse…' },
-          ]);
-          setTimeout(() => navigate('/synthese'), 2000);
-        }
-      } else {
-        setHistory(h => [...h, { role: 'assistant', content: reply }]);
-      }
-    } catch (err) {
-      setHistory(h => [
-        ...h,
-        { role: 'assistant', content: err.message || 'Erreur inconnue.' },
-      ]);
+      const response = await fetch('http://localhost:10000/message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ history: newMessages }),
+      });
+      const data = await response.json();
+      setMessages([...newMessages, { role: 'assistant', content: data.reply }]);
+    } catch (error) {
+      console.error('Erreur de réponse backend :', error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle pressing Enter in the input
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !loading) send();
-  };
-
   return (
-    <div className="h-screen flex flex-col w-[80%] mx-auto p-4">
-      <div className="flex-1 overflow-y-auto bg-white shadow rounded p-4 space-y-2">
-        {history.map((m, i) => (
-          <div
-            key={i}
-            className={m.role === 'assistant' ? 'text-left' : 'text-right'}
-          >
-            <span
-              className={`inline-block p-2 rounded ${
-                m.role === 'assistant'
-                  ? 'bg-gray-200'
-                  : 'bg-[#F16E00] text-white'
-              }`}
-              aria-label={m.role === 'assistant' ? 'Message IA' : 'Votre message'}
-              dangerouslySetInnerHTML={{
-                __html: m.content.replace(/\n/g, '<br />'),
-              }}
-            />
+    <div className="chat-app">
+      <div className="chat-box">
+        {messages.map((msg, i) => (
+          <div key={i} className={`message ${msg.role}`}>
+            {msg.content}
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
-
-      <div className="mt-4 flex gap-2 items-center">
+      <div className="input-box">
         <input
-          className="flex-1 border rounded p-2"
-          placeholder="Ta réponse…"
           value={input}
-          aria-label="Champ de saisie"
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          disabled={loading}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+          placeholder="Écris ta réponse ici..."
         />
-        <button
-          onClick={send}
-          disabled={loading || !input.trim()}
-          className="px-4 py-2 bg-[#F16E00] text-white rounded disabled:opacity-50"
-          aria-label="Envoyer le message"
-        >
-          {loading ? 'Envoi…' : 'Envoyer'}
+        <button onClick={handleSend} disabled={loading}>
+          Envoyer
         </button>
       </div>
     </div>
   );
 }
+
+export default ChatApp;
