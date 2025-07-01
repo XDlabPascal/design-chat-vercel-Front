@@ -41,16 +41,40 @@ export default function Synthese() {
   const [sent, setSent] = useState(false);
 
   // Fetch summary on mount
-  useEffect(() => {
-    fetch('https://design-chat-render-backend.onrender.com/summary')
-      .then(r => r.json())
-      .then(d => {
-        if (d.summary) setData(parseSummary(d.summary));
-        else setError(d.error || 'Synthèse indisponible');
+useEffect(() => {
+  let intervalId;
+  let tries = 0;
+
+  const fetchSummary = async () => {
+    try {
+      const res = await fetch('https://design-chat-render-backend.onrender.com/summary');
+      const json = await res.json();
+
+      if (json.summary) {
+        setData(parseSummary(json.summary));
+        clearInterval(intervalId);
         setLoading(false);
-      })
-      .catch(() => { setError('Erreur réseau'); setLoading(false); });
-  }, []);
+      } else if (json.error && tries > 10) {
+        setError('Synthèse indisponible après plusieurs tentatives.');
+        clearInterval(intervalId);
+        setLoading(false);
+      }
+    } catch (err) {
+      if (tries > 10) {
+        setError('Erreur réseau persistante.');
+        clearInterval(intervalId);
+        setLoading(false);
+      }
+    }
+    tries++;
+  };
+
+  // Lancer le polling toutes les 2 secondes
+  intervalId = setInterval(fetchSummary, 2000);
+
+  // Nettoyage au démontage
+  return () => clearInterval(intervalId);
+}, []);
 
   // Send email
   const handleSend = async () => {
