@@ -1,1 +1,9 @@
-export default { content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'], theme: { extend: { fontFamily: { sans: ['ui-sans-serif', 'system-ui'], }, }, }, plugins: [], };
+module.exports = {
+  plugins: {
+    // Remplace ceci :
+    // tailwindcss: {},
+    // par ceci :
+    '@tailwindcss/postcss': {},
+    autoprefixer: {},
+  },
+};
