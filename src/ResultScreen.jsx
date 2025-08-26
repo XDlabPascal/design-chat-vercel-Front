@@ -25,10 +25,11 @@ export default function ResultScreen({ summaryData, onEmailSubmit }) {
     <div className="max-w-3xl mx-auto p-6 bg-white rounded shadow space-y-6">
       <h2 className="text-2xl font-bold text-gray-800">🎯 Synthèse de ton évaluation</h2>
 
-      <div>
-        <h3 className="font-semibold text-gray-700">📊 Niveau global :</h3>
-        <p>{summaryData.niveau}</p>
-      </div>
+      // Panneau niveau KO
+      // <div>
+      //   <h3 className="font-semibold text-gray-700">📊 Niveau global :</h3>
+      //   <p>{summaryData.niveau}</p>
+      // </div>
 
       <div>
         <h3 className="font-semibold text-gray-700">✅ Points forts :</h3>
