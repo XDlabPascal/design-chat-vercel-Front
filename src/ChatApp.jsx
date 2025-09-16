@@ -4,16 +4,16 @@ import { useNavigate } from 'react-router-dom';
 export default function ChatApp() {
   const navigate = useNavigate();
 
-  //  const [history, setHistory] = useState([
-  //    {
-   //     role: 'assistant',
-   //     content:
-   //       "Bonjour !\n Je suis un agent IA pour évaluer tes connaissances sur le design.\n Pour commencer, peux-tu me dire ce que c'est selon toi ?",
-   //   },
-  //  ]);
-  //  const [input, setInput] = useState('');
- //   const [loading, setLoading] = useState(false);
-  //  const [transitionDone, setTransitionDone] = useState(false);
+  const [history, setHistory] = useState([
+ {
+   role: 'assistant',
+   content:
+   "Bonjour !\n Je suis un agent IA pour évaluer tes connaissances sur le design.\n Pour commencer, peux-tu me dire ce que c'est selon toi ?",
+   },
+  /]);
+const [input, setInput] = useState('');
+const [loading, setLoading] = useState(false);
+const [transitionDone, setTransitionDone] = useState(false);
 
   // Send message to backend and handle response
   const send = async () => {
