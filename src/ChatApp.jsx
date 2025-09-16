@@ -15,6 +15,9 @@ export default function ChatApp() {
   const [loading, setLoading] = useState(false);
   const [transitionDone, setTransitionDone] = useState(false);
 
+  // Compte le nombre de messages utilisateur
+  const userMessageCount = history.filter(m => m.role === 'user').length;
+
   // Send message to backend and handle response
   const send = async () => {
     if (!input.trim()) return;
@@ -40,9 +43,12 @@ export default function ChatApp() {
 
       const { reply, done, error } = await res.json();
 
+      // Calculer le nombre de messages utilisateur après ajout
+      const updatedUserMessageCount = newHistory.filter(m => m.role === 'user').length;
+
       if (error) {
         setHistory(h => [...h, { role: 'assistant', content: error }]);
-      } else if (done) {
+      } else if (done || updatedUserMessageCount >= 10) {
         if (!transitionDone) {
           setTransitionDone(true);
           setHistory(h => [
