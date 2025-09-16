@@ -103,7 +103,7 @@ useEffect(() => {
   if (error && !sent) return <div className="font-sans min-h-screen flex items-center justify-center text-red-600">{error}</div>;
   if (!data) return null;
 
-  const { level, strengths, weaknesses, playlist, synth } = data;
+  const { strengths, weaknesses, playlist, synth } = data;
 
   return (
     <div className="font-sans min-h-screen bg-[#fffaf5] p-8 text-gray-900">
@@ -111,15 +111,7 @@ useEffect(() => {
 
         <h1 className="text-4xl font-extrabold text-[#F16E00]">Résultat de l'auto-évaluation sur le Design</h1>
 
-        {/* Cartes niveau / forces / faiblesses / playlist */}
-        <div className="bg-white p-6 rounded-2xl shadow-lg flex gap-3">
-          <span className="text-2xl">🎯</span>
-          <div>
-            <p className="text-lg font-semibold">Niveau estimé</p>
-            <p className="text-gray-700">{level || '—'}</p>
-          </div>
-        </div>
-
+        {/* Forces / faiblesses / playlist */}
         <div className="grid md:grid-cols-2 gap-6">
           <div className="bg-white p-6 rounded-2xl shadow flex gap-3">
             <span className="text-2xl">✅</span>
