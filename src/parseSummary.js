@@ -21,8 +21,24 @@ export default function parseSummary(raw) {
     }
   }
 
+  // Si aucune section détectée, tout afficher dans resume
+  if (
+    pointsForts.length === 0 &&
+    pointsFaibles.length === 0 &&
+    videos.length === 0 &&
+    !resume.trim()
+  ) {
+    return {
+      niveau: '',
+      pointsForts: [],
+      pointsFaibles: [],
+      videos: [],
+      resume: raw.trim()
+    };
+  }
+
   return {
-    niveau: '', // Pas de niveau global dans ce format
+    niveau: '',
     pointsForts,
     pointsFaibles,
     videos,
