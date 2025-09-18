@@ -39,6 +39,7 @@ export default function Synthese() {
       try {
         const res = await fetch('https://design-chat-render-backend.onrender.com/summary');
         const json = await res.json();
+        console.log('Résumé brut reçu du backend :', json.summary);
         if (json.summary) {
           setSummaryData(parseSummary(json.summary));
           clearInterval(intervalId);
