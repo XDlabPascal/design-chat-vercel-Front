@@ -9,7 +9,7 @@ export default function ChatApp() {
     {
       role: 'assistant',
       content:
-        "Bonjour !\n\nJe suis Lucas, un agent IA pour évaluer tes connaissances sur le design, et plus généralement sur la conception centrée utilisateurs.\n\nPour commencer, peux-tu me dire ce que le design évoque pour toi ?",
+        "Bonjour !\n\nJe suis Lucas, un agent IA, imaginé par Sophie Arsac et Pascal Jambie, pour évaluer tes connaissances sur le design, et plus généralement sur la conception centrée utilisateurs.\n\nPour commencer, peux-tu me dire ce que le design évoque pour toi ?\n",
     },
   ]);
   const [input, setInput] = useState('');
