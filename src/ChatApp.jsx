@@ -9,7 +9,7 @@ export default function ChatApp() {
     {
       role: 'assistant',
       content:
-        "Bonjour !\n Je suis un agent IA pour évaluer tes connaissances sur le design.\n Pour commencer, peux-tu me dire ce que c'est selon toi ?",
+        "Bonjour !\n Je suis un bek agent IA pour évaluer tes connaissances sur le design.\n Pour commencer, peux-tu me dire ce que c'est selon toi ?",
     },
   ]);
   const [input, setInput] = useState('');
@@ -83,32 +83,33 @@ export default function ChatApp() {
     if (e.key === 'Enter' && !loading) send();
   };
 
-  return (
-    <div className="h-screen flex flex-col w-[80%] mx-auto p-4">
-      <div
-        ref={chatContainerRef}
-        className="flex-1 overflow-y-auto bg-white shadow rounded p-4 space-y-2"
-        style={{ scrollBehavior: 'smooth' }}
-      >
-        {history.map((m, i) => (
-          <div
-            key={i}
-            className={m.role === 'assistant' ? 'text-left' : 'text-right'}
-          >
-            <span
-              className={`inline-block p-2 rounded ${
-                m.role === 'assistant'
-                  ? 'bg-gray-200'
-                  : 'bg-[#F16E00] text-white'
-              }`}
-              aria-label={m.role === 'assistant' ? 'Message IA' : 'Votre message'}
-              dangerouslySetInnerHTML={{
-                __html: m.content.replace(/\n/g, '<br />'),
-              }}
-            />
-          </div>
-        ))}
-      </div>
+// Bg couleur modif
+return (
+  <div className="h-screen flex flex-col w-[80%] mx-auto p-4" style={{ backgroundColor: '#fefaf4' }}>
+    <div
+      ref={chatContainerRef}
+      className="flex-1 overflow-y-auto shadow rounded p-4 space-y-2"
+      style={{ scrollBehavior: 'smooth', backgroundColor: '#fefaf4' }} // Ajoute ici aussi si tu veux le même fond dans la zone des messages
+    >
+      {history.map((m, i) => (
+        <div
+          key={i}
+          className={m.role === 'assistant' ? 'text-left' : 'text-right'}
+        >
+          <span
+            className={`inline-block p-2 rounded ${
+              m.role === 'assistant'
+                ? 'bg-gray-200'
+                : 'bg-[#F16E00] text-white'
+            }`}
+            aria-label={m.role === 'assistant' ? 'Message IA' : 'Votre message'}
+            dangerouslySetInnerHTML={{
+              __html: m.content.replace(/\n/g, '<br />'),
+            }}
+          />
+        </div>
+      ))}
+    </div>
 
       <div className="mt-4 flex gap-2 items-center">
         <input
