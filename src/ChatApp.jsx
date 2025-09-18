@@ -57,7 +57,6 @@ export default function ChatApp() {
       if (error) {
         setHistory(h => [...h, { role: 'assistant', content: error }]);
       } else if (done || updatedUserMessageCount >= 10) {
-        // On n'affiche PAS la synthèse ici, seulement le message d'attente
         if (!transitionDone) {
           setTransitionDone(true);
           setHistory(h => [
@@ -79,7 +78,6 @@ export default function ChatApp() {
     }
   };
 
-  // Gestion de la touche Entrée dans l'input
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !loading) send();
   };
