@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function ResultScreen({ summaryData, onEmailSubmit }) {
+export default function ResultScreen({ summaryData }) {
   const [email, setEmail] = useState('');
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
@@ -21,38 +21,56 @@ export default function ResultScreen({ summaryData, onEmailSubmit }) {
     setSending(false);
   };
 
+  if (!summaryData) {
+    return <div className="p-6 text-red-600">Aucun résultat à afficher.</div>;
+  }
+
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded shadow space-y-6">
       <h2 className="text-2xl font-bold text-gray-800">🎯 Synthèse de ton évaluation</h2>
 
-      // Panneau niveau KO
-      // <div>
-      //   <h3 className="font-semibold text-gray-700">📊 Niveau global :</h3>
-      //   <p>{summaryData.niveau}</p>
-      // </div>
+      <div>
+        <h3 className="font-semibold text-gray-700">📊 Niveau global :</h3>
+        <p>{summaryData.niveau || "Non renseigné"}</p>
+      </div>
 
       <div>
         <h3 className="font-semibold text-gray-700">✅ Points forts :</h3>
         <ul className="list-disc list-inside text-green-700">
-          {summaryData.pointsForts.map((point, i) => <li key={i}>{point}</li>)}
+          {(summaryData.pointsForts ?? []).length > 0
+            ? summaryData.pointsForts.map((point, i) => <li key={i}>{point}</li>)
+            : <li>Aucun point fort détecté.</li>}
         </ul>
       </div>
 
       <div>
         <h3 className="font-semibold text-gray-700">⚠️ Points à améliorer :</h3>
         <ul className="list-disc list-inside text-red-600">
-          {summaryData.pointsFaibles.map((point, i) => <li key={i}>{point}</li>)}
+          {(summaryData.pointsFaibles ?? []).length > 0
+            ? summaryData.pointsFaibles.map((point, i) => <li key={i}>{point}</li>)
+            : <li>Aucun point faible détecté.</li>}
         </ul>
       </div>
 
       <div>
         <h3 className="font-semibold text-gray-700">📺 Playlist personnalisée :</h3>
         <ul className="list-decimal list-inside text-blue-800 underline">
-          {summaryData.videos.map((url, i) => (
-            <li key={i}><a href={url} target="_blank" rel="noopener noreferrer">{url}</a></li>
-          ))}
+          {(summaryData.videos ?? []).length > 0
+            ? summaryData.videos.map((video, i) =>
+                <li key={i}>
+                  <a href={video.url} target="_blank" rel="noopener noreferrer">{video.title}</a>
+                </li>
+              )
+            : <li>Aucune vidéo recommandée.</li>}
         </ul>
       </div>
+
+      {summaryData.resume &&
+        <div>
+          <h3 className="font-semibold text-gray-700">📝 Résumé personnalisé :</h3>
+          <p className="whitespace-pre-wrap">{summaryData.resume}</p>
+        </div>
+      }
 
       {!sent ? (
         <div className="space-y-4">
