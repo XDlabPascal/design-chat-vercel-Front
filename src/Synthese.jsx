@@ -1,29 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ResultScreen from './ResultScreen';
-
-// Parse la synthèse brute reçue du backend
-function parseSummary(raw) {
-  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
-  let niveau = '', pointsForts = [], pointsFaibles = [], videos = [], resume = '', current = '';
-  for (const l of lines) {
-    if (l.startsWith('🎯')) { current = 'niveau'; niveau = l.replace(/.*:/, '').trim(); }
-    else if (l.startsWith('✅')) current = 'pointsForts';
-    else if (l.startsWith('⚠️')) current = 'pointsFaibles';
-    else if (l.startsWith('📺')) current = 'videos';
-    else if (l.startsWith('📝')) current = 'resume';
-    else {
-      if (current === 'pointsForts' && l.startsWith('-')) pointsForts.push(l.slice(1).trim());
-      if (current === 'pointsFaibles' && l.startsWith('-')) pointsFaibles.push(l.slice(1).trim());
-      if (current === 'videos' && l.startsWith('-')) {
-        const m = /\[(.*?)]\((https?:\/\/.*?)\)/.exec(l);
-        if (m) videos.push({ title: m[1], url: m[2] });
-      }
-      if (current === 'resume') resume += l + '\n';
-    }
-  }
-  return { niveau, pointsForts, pointsFaibles, videos, resume };
-}
+import parseSummary from './parseSummary';
 
 export default function Synthese() {
   const navigate = useNavigate();
