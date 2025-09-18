@@ -4,12 +4,13 @@ import { useNavigate } from 'react-router-dom';
 export default function ChatApp() {
   const navigate = useNavigate();
   const chatContainerRef = useRef(null);
+  const inputRef = useRef(null); // <-- Ajout de la référence d'input
 
   const [history, setHistory] = useState([
     {
       role: 'assistant',
       content:
-        "Bonjour !\n\nJe suis Lucas 2, un agent IA, imaginé par Sophie Arsac et Pascal Jambie, pour évaluer tes connaissances sur le design, et plus généralement sur la conception centrée utilisateurs.\n\nPour commencer, peux-tu me dire ce que le design évoque pour toi ?\n",
+        "Bonjour !\n\nJe suis Lucas 2, un agent IA, imaginé par Sophie Arsac et Pascal Jambie, pour évaluer tes connaissances sur le design, et plus généralement sur la conception centrée utilisa[...]"
     },
   ]);
   const [input, setInput] = useState('');
@@ -19,10 +20,13 @@ export default function ChatApp() {
   // Compte le nombre de messages utilisateur
   const userMessageCount = history.filter(m => m.role === 'user').length;
 
-  // Scroll automatiquement vers le bas à chaque nouveau message
+  // Scroll automatiquement vers le bas à chaque nouveau message ET focus input
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+    if (inputRef.current) {
+      inputRef.current.focus();
     }
   }, [history]);
 
@@ -111,6 +115,7 @@ export default function ChatApp() {
 
       <div className="mt-4 flex gap-2 items-center">
         <input
+          ref={inputRef} // <-- Ajout ici
           className="flex-1 border rounded p-2"
           placeholder="Ta réponse…"
           value={input}
