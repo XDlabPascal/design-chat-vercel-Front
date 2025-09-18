@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function ChatApp() {
   const navigate = useNavigate();
+  const chatContainerRef = useRef(null);
 
   const [history, setHistory] = useState([
     {
@@ -17,6 +18,13 @@ export default function ChatApp() {
 
   // Compte le nombre de messages utilisateur
   const userMessageCount = history.filter(m => m.role === 'user').length;
+
+  // Scroll automatiquement vers le bas à chaque nouveau message
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [history]);
 
   // Send message to backend and handle response
   const send = async () => {
@@ -77,7 +85,11 @@ export default function ChatApp() {
 
   return (
     <div className="h-screen flex flex-col w-[80%] mx-auto p-4">
-      <div className="flex-1 overflow-y-auto bg-white shadow rounded p-4 space-y-2">
+      <div
+        ref={chatContainerRef}
+        className="flex-1 overflow-y-auto bg-white shadow rounded p-4 space-y-2"
+        style={{ scrollBehavior: 'smooth' }}
+      >
         {history.map((m, i) => (
           <div
             key={i}
