@@ -5,4 +5,5 @@
 /* Styles globaux éventuels ici */
 body {
   @apply font-sans;
+  background-color: #fefaf4;
 }
