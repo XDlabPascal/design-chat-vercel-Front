@@ -63,7 +63,13 @@ export default function ChatApp() {
             ...h,
             { role: 'assistant', content: '⏳ Merci ! Je prépare ta synthèse…' },
           ]);
-          setTimeout(() => navigate('/synthese'), 2000);
+
+setTimeout(() => {
+  console.log('Redirection vers /synthese');
+  navigate('/synthese');
+}, 2000);
+          
+          setTimeout(() => navigate('/synthese'), 2000);       
         }
       } else {
         setHistory(h => [...h, { role: 'assistant', content: reply }]);
