@@ -9,7 +9,7 @@ export default function ChatApp() {
     {
       role: 'assistant',
       content:
-        "Bonjour !\n\n Je suis Lucas, un agent IA pour évaluer tes connaissances sur le design, et plus généralement sur la conception centrée utilisateurs.\n\n Pour commencer, peux-tu me dire ce que le desig évoque pour toi ?",
+        "Bonjour !\n\nJe suis Lucas, un agent IA pour évaluer tes connaissances sur le design, et plus généralement sur la conception centrée utilisateurs.\n\nPour commencer, peux-tu me dire ce que le design évoque pour toi ?",
     },
   ]);
   const [input, setInput] = useState('');
@@ -26,7 +26,7 @@ export default function ChatApp() {
     }
   }, [history]);
 
-  // Send message to backend and handle response
+  // Envoi du message au backend et gestion de la réponse
   const send = async () => {
     if (!input.trim()) return;
 
@@ -57,19 +57,14 @@ export default function ChatApp() {
       if (error) {
         setHistory(h => [...h, { role: 'assistant', content: error }]);
       } else if (done || updatedUserMessageCount >= 10) {
+        // On n'affiche PAS la synthèse ici, seulement le message d'attente
         if (!transitionDone) {
           setTransitionDone(true);
           setHistory(h => [
             ...h,
             { role: 'assistant', content: '⏳ Merci ! Je prépare ta synthèse…' },
           ]);
-
-setTimeout(() => {
-  console.log('Redirection vers /synthese');
-  navigate('/synthese');
-}, 2000);
-          
-          setTimeout(() => navigate('/synthese'), 2000);       
+          setTimeout(() => navigate('/synthese'), 2000);
         }
       } else {
         setHistory(h => [...h, { role: 'assistant', content: reply }]);
@@ -84,7 +79,7 @@ setTimeout(() => {
     }
   };
 
-  // Handle pressing Enter in the input
+  // Gestion de la touche Entrée dans l'input
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !loading) send();
   };
@@ -115,7 +110,6 @@ setTimeout(() => {
           </div>
         ))}
       </div>
-
 
       <div className="mt-4 flex gap-2 items-center">
         <input
