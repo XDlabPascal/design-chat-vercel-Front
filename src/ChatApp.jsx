@@ -1,16 +1,26 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+// Fonction utilitaire pour fetch avec timeout
+const fetchWithTimeout = (url, options, timeout = 15000) => {
+  return Promise.race([
+    fetch(url, options),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('⏳ Temps de réponse trop long du serveur. Merci de réessayer dans quelques instants.')), timeout)
+    ),
+  ]);
+};
+
 export default function ChatApp() {
   const navigate = useNavigate();
   const chatContainerRef = useRef(null);
-  const inputRef = useRef(null); // <-- Ajout de la référence d'input
+  const inputRef = useRef(null);
 
   const [history, setHistory] = useState([
     {
       role: 'assistant',
       content:
-        "Bonjour !\n\nJe suis Lucas, un agent IA, imaginé par Sophie Arsac et Pascal Jambie, pour évaluer tes connaissances sur le design,\n et plus généralement sur la conception centrée utilisateur."
+        "Bonjour !\n\nJe suis Lucas, un agent IA, imaginé par Sophie Arsac et Pascal Jambie, pour évaluer tes connaissances sur le design, \net plus généralement sur la conception centrée utilisateur. \nN’hésite pas à répondre franchement, tu peux aussi répondre « je ne sais pas ». Prêt·e ? Premier sujet…",
     },
   ]);
   const [input, setInput] = useState('');
@@ -40,17 +50,18 @@ export default function ChatApp() {
     setLoading(true);
 
     try {
-const res = await fetchWithTimeout(
-  'https://design-chat-render-backend.onrender.com/message',
-  {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ history: newHistory }),
-  }
-);
-if (!res.ok) {
-  throw new Error("Le serveur n'a pas répondu correctement. Merci de réessayer dans quelques instants.");
-}
+      const res = await fetchWithTimeout(
+        'https://design-chat-render-backend.onrender.com/message',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ history: newHistory }),
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error("🚨 Le serveur n'a pas répondu correctement. Merci de réessayer dans quelques instants.");
+      }
 
       const { reply, done, error } = await res.json();
 
@@ -114,7 +125,7 @@ if (!res.ok) {
 
       <div className="mt-4 flex gap-2 items-center">
         <input
-          ref={inputRef} // <-- Ajout ici
+          ref={inputRef}
           className="flex-1 border rounded p-2"
           placeholder="Ta réponse…"
           value={input}
