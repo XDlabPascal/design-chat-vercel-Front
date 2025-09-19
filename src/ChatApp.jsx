@@ -10,7 +10,7 @@ export default function ChatApp() {
     {
       role: 'assistant',
       content:
-        "Bonjour !\n\nJe suis Lucas 2, un agent IA, imaginé par Sophie Arsac et Pascal Jambie, pour évaluer tes connaissances sur le design, et plus généralement sur la conception centrée utilisa[...]"
+        "Bonjour !\n\nJe suis Lucas, un agent IA, imaginé par Sophie Arsac et Pascal Jambie, pour évaluer tes connaissances sur le design,\n et plus généralement sur la conception centrée utilisateur."
     },
   ]);
   const [input, setInput] = useState('');
@@ -40,18 +40,17 @@ export default function ChatApp() {
     setLoading(true);
 
     try {
-      const res = await fetch(
-        'https://design-chat-render-backend.onrender.com/message',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ history: newHistory }),
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error('Erreur réseau');
-      }
+const res = await fetchWithTimeout(
+  'https://design-chat-render-backend.onrender.com/message',
+  {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ history: newHistory }),
+  }
+);
+if (!res.ok) {
+  throw new Error("Le serveur n'a pas répondu correctement. Merci de réessayer dans quelques instants.");
+}
 
       const { reply, done, error } = await res.json();
 
