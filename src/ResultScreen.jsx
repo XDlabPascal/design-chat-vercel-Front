@@ -27,28 +27,29 @@ export default function ResultScreen({ summaryData }) {
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded shadow space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800">🎯 Synthèse de ton évaluation</h2>
+      {/* Titre supprimé */}
+
+      {/* Rubrique "Niveau global" supprimée */}
 
       <div>
-        <h3 className="font-semibold text-gray-700">📊 Niveau global :</h3>
-        <p>{summaryData.niveau || "Non renseigné"}</p>
-      </div>
-
-      <div>
-        <h3 className="font-semibold text-gray-700">✅ Points forts :</h3>
-        <ul className="list-disc list-inside text-green-700">
+        <h3 className="font-semibold text-green-700">✅ Points forts :</h3>
+        <ul className="list-disc list-inside">
           {(summaryData.pointsForts ?? []).length > 0
-            ? summaryData.pointsForts.map((point, i) => <li key={i}>{point}</li>)
-            : <li>Aucun point fort détecté.</li>}
+            ? summaryData.pointsForts.map((point, i) => (
+                <li key={i} className="text-black">{point}</li>
+              ))
+            : <li className="text-black">Aucun point fort détecté.</li>}
         </ul>
       </div>
 
       <div>
-        <h3 className="font-semibold text-gray-700">⚠️ Points à améliorer :</h3>
-        <ul className="list-disc list-inside text-red-600">
+        <h3 className="font-semibold text-red-600">⚠️ Points à améliorer :</h3>
+        <ul className="list-disc list-inside">
           {(summaryData.pointsFaibles ?? []).length > 0
-            ? summaryData.pointsFaibles.map((point, i) => <li key={i}>{point}</li>)
-            : <li>Aucun point faible détecté.</li>}
+            ? summaryData.pointsFaibles.map((point, i) => (
+                <li key={i} className="text-black">{point}</li>
+              ))
+            : <li className="text-black">Aucun point faible détecté.</li>}
         </ul>
       </div>
 
