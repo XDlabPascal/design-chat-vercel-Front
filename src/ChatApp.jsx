@@ -6,7 +6,7 @@ const fetchWithTimeout = (url, options, timeout = 15000) => {
   return Promise.race([
     fetch(url, options),
     new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('⏳ Temps de réponse trop long du serveur. Merci de réessayer dans quelques instants.')), timeout)
+      setTimeout(() => reject(new Error('⏳ Temps de réponse trop long du serveur. Merci de rafraîchir la page de ton navigateur internet.')), timeout)
     ),
   ]);
 };
