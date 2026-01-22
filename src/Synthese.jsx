@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import ResultScreen from './ResultScreen';
 import parseSummary from './parseSummary';
 
 export default function Synthese() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [summaryData, setSummaryData] = useState(null);
+
+  // Extract jobId from query string if present (e.g. /synthese?jobId=abc).
+  const params = new URLSearchParams(location.search);
+  const jobId = params.get('jobId');
 
   useEffect(() => {
     let intervalId;
@@ -15,9 +20,21 @@ export default function Synthese() {
 
     const fetchSummary = async () => {
       try {
-        const res = await fetch('https://design-chat-render-backend.onrender.com/summary');
+        // If jobId present, include it in the request so backend returns job-specific result
+        const url = jobId
+          ? `https://design-chat-render-backend.onrender.com/summary?jobId=${encodeURIComponent(jobId)}`
+          : 'https://design-chat-render-backend.onrender.com/summary';
+
+        const res = await fetch(url);
+        // Accept both 200 and 404/500 but parse body; backend should return 200 + {summary: null} when not ready.
+        if (res.status === 404) {
+          // older backend behaviour; treat as not ready
+          console.warn('/summary returned 404 — treating as not ready');
+        }
+
         const json = await res.json();
         console.log('Résumé brut reçu du backend :', json.summary);
+
         if (json.summary) {
           setSummaryData(parseSummary(json.summary));
           clearInterval(intervalId);
@@ -28,6 +45,7 @@ export default function Synthese() {
           setLoading(false);
         }
       } catch (err) {
+        console.warn('Erreur fetchSummary:', err);
         if (tries > 10) {
           setError('Erreur réseau persistante.');
           clearInterval(intervalId);
@@ -37,9 +55,13 @@ export default function Synthese() {
       tries++;
     };
 
+    // start polling every 2s
     intervalId = setInterval(fetchSummary, 2000);
+    // try immediately as well
+    fetchSummary();
+
     return () => clearInterval(intervalId);
-  }, []);
+  }, [jobId]);
 
   if (loading) return <div className="font-sans min-h-screen flex items-center justify-center">Chargement…</div>;
   if (error) return <div className="font-sans min-h-screen flex items-center justify-center text-red-600">{error}</div>;
