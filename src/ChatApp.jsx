@@ -63,22 +63,25 @@ export default function ChatApp() {
         throw new Error("🚨 Le serveur n'a pas répondu correctement. Merci de réessayer dans quelques instants.");
       }
 
-      const { reply, done, error } = await res.json();
+      // backend may return { reply, done, jobId, error }
+      const { reply, done, error, jobId } = await res.json();
 
       // Calculer le nombre de messages utilisateur après ajout
       const updatedUserMessageCount = newHistory.filter(m => m.role === 'user').length;
 
       if (error) {
         setHistory(h => [...h, { role: 'assistant', content: error }]);
-         // Variable du nombre de questions
-      } else if (done || updatedUserMessageCount >= 6) {
+      } else if (done || updatedUserMessageCount >= 10) {
         if (!transitionDone) {
           setTransitionDone(true);
           setHistory(h => [
             ...h,
             { role: 'assistant', content: '⏳ Merci ! Je prépare ta synthèse…' },
           ]);
-          setTimeout(() => navigate('/synthese'), 2000);
+
+          // If backend returned jobId, navigate including it so Synthese can poll /summary?jobId=...
+          const synthesePath = jobId ? `/synthese?jobId=${encodeURIComponent(jobId)}` : '/synthese';
+          setTimeout(() => navigate(synthesePath, { replace: true }), 2000);
         }
       } else {
         setHistory(h => [...h, { role: 'assistant', content: reply }]);
