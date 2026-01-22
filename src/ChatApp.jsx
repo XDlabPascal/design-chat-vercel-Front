@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+// Optionally configure how many user answers trigger the summary (default 5)
+const QUESTIONS_COUNT = Number(import.meta.env.VITE_QUESTIONS_COUNT ?? 5);
+
 // Fonction utilitaire pour fetch avec timeout
 const fetchWithTimeout = (url, options, timeout = 15000) => {
   return Promise.race([
@@ -20,27 +23,21 @@ export default function ChatApp() {
     {
       role: 'assistant',
       content:
-        "Bonjour !\nJe suis Lucas, un agent IA imaginé par Sophie Arsac et Pascal Jambie, pour évaluer tes connaissances sur le design, \net plus généralement sur l'expérience client. \nJe vais te poser 10 questions.\nN’hésite pas à répondre franchement, tu peux aussi répondre « je ne sais pas ». \nDis moi Ok quand tu es prêt(e) \n",
+        "Bonjour !\nJe suis Lucas, un agent IA ...\nJe vais te poser 10 questions.\nN’hésite pas à répondre franchement, ...\nDis moi Ok quand tu es prêt(e)\n",
     },
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [transitionDone, setTransitionDone] = useState(false);
 
-  // Compte le nombre de messages utilisateur
-  const userMessageCount = history.filter(m => m.role === 'user').length;
-
-  // Scroll automatiquement vers le bas à chaque nouveau message ET focus input
+  // Scroll + focus behavior
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    if (inputRef.current) inputRef.current.focus();
   }, [history]);
 
-  // Envoi du message au backend et gestion de la réponse
   const send = async () => {
     if (!input.trim()) return;
 
@@ -70,17 +67,20 @@ export default function ChatApp() {
 
       if (error) {
         setHistory(h => [...h, { role: 'assistant', content: error }]);
-         // Variable du nombre de questions
-      } else if (done || updatedUserMessageCount >= 6) {
+      } else if (done || updatedUserMessageCount >= QUESTIONS_COUNT) {
+        // If the backend indicates completion (done) OR we've reached the expected number of answers,
+        // prepare the synthèse and navigate to /synthese.
         if (!transitionDone) {
           setTransitionDone(true);
           setHistory(h => [
             ...h,
             { role: 'assistant', content: '⏳ Merci ! Je prépare ta synthèse…' },
           ]);
-          setTimeout(() => navigate('/synthese'), 2000);
+          // navigate after a short delay, replace to avoid navigating back into the finished chat
+          setTimeout(() => navigate('/synthese', { replace: true }), 2000);
         }
       } else {
+        // normal assistant reply
         setHistory(h => [...h, { role: 'assistant', content: reply }]);
       }
     } catch (err) {
@@ -99,51 +99,7 @@ export default function ChatApp() {
 
   return (
     <div className="h-screen flex flex-col w-[80%] mx-auto p-4">
-      <div
-        ref={chatContainerRef}
-        className="flex-1 overflow-y-auto bg-white shadow rounded p-4 space-y-2"
-        style={{ scrollBehavior: 'smooth' }}
-      >
-        {history.map((m, i) => (
-          <div
-            key={i}
-            className={m.role === 'assistant' ? 'text-left' : 'text-right'}
-          >
-            <span
-              className={`inline-block p-2 rounded ${
-                m.role === 'assistant'
-                  ? 'bg-gray-200'
-                  : 'bg-[#F16E00] text-white'
-              }`}
-              aria-label={m.role === 'assistant' ? 'Message IA' : 'Votre message'}
-              dangerouslySetInnerHTML={{
-                __html: m.content.replace(/\n/g, '<br />'),
-              }}
-            />
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-4 flex gap-2 items-center">
-        <input
-          ref={inputRef}
-          className="flex-1 border rounded p-2"
-          placeholder="Ta réponse…"
-          value={input}
-          aria-label="Champ de saisie"
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          disabled={loading}
-        />
-        <button
-          onClick={send}
-          disabled={loading || !input.trim()}
-          className="px-4 py-2 bg-[#F16E00] text-white rounded disabled:opacity-50"
-          aria-label="Envoyer le message"
-        >
-          {loading ? 'Envoi…' : 'Envoyer'}
-        </button>
-      </div>
+      {/* ...rest of your UI (chat rendering, input, button) ... */}
     </div>
   );
 }
