@@ -71,7 +71,7 @@ export default function ChatApp() {
 
       if (error) {
         setHistory(h => [...h, { role: 'assistant', content: error }]);
-      } else if (done || updatedUserMessageCount >= 10) {
+      } else if (done || updatedUserMessageCount >= 5) {
         if (!transitionDone) {
           setTransitionDone(true);
           setHistory(h => [
