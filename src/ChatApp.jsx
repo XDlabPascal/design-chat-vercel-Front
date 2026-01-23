@@ -1,72 +1,40 @@
-import { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// Fonction utilitaire pour fetch avec timeout
-const fetchWithTimeout = (url, options, timeout = 15000) => {
-  return Promise.race([
-    fetch(url, options),
-    new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('⏳ Temps de réponse trop long du serveur. Merci de rafraîchir la page de ton navigateur internet.')), timeout)
-    ),
-  ]);
-};
-
 export default function ChatApp() {
-  const navigate = useNavigate();
-  const chatContainerRef = useRef(null);
-  const inputRef = useRef(null);
-
-  const [history, setHistory] = useState([
-    {
-      role: 'assistant',
-      content:
-        "Bonjour !\nJe suis Lucas, un agent IA imaginé par Sophie Arsac et Pascal Jambie, pour évaluer tes connaissances sur le design, \net plus généralement sur l'expérience client. \nJe vais te poser 10 questions.\nN’hésite pas à répondre franchement, tu peux aussi répondre « je ne sais pas ». \nDis moi Ok quand tu es prêt(e) \n",
-    },
-  ]);
+  const [history, setHistory] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [transitionDone, setTransitionDone] = useState(false);
+  const chatContainerRef = useRef(null);
+  const inputRef = useRef(null);
+  const navigate = useNavigate();
 
-  // Compte le nombre de messages utilisateur
-  const userMessageCount = history.filter(m => m.role === 'user').length;
-
-  // Scroll automatiquement vers le bas à chaque nouveau message ET focus input
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
   }, [history]);
 
-  // Envoi du message au backend et gestion de la réponse
   const send = async () => {
     if (!input.trim()) return;
-
-    const newHistory = [...history, { role: 'user', content: input.trim() }];
+    setLoading(true);
+    const newHistory = [...history, { role: 'user', content: input }];
     setHistory(newHistory);
     setInput('');
-    setLoading(true);
 
     try {
-      const res = await fetchWithTimeout(
-        'https://design-chat-render-backend.onrender.com/message',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ history: newHistory }),
-        }
-      );
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ history: newHistory }),
+      });
 
       if (!res.ok) {
         throw new Error("🚨 Le serveur n'a pas répondu correctement. Merci de réessayer dans quelques instants.");
       }
 
-      // backend may return { reply, done, jobId, error }
       const { reply, done, error, jobId } = await res.json();
-
-      // Calculer le nombre de messages utilisateur après ajout
       const updatedUserMessageCount = newHistory.filter(m => m.role === 'user').length;
 
       if (error) {
@@ -79,7 +47,6 @@ export default function ChatApp() {
             { role: 'assistant', content: '⏳ Merci ! Je prépare ta synthèse…' },
           ]);
 
-          // If backend returned jobId, navigate including it so Synthese can poll /summary?jobId=...
           const synthesePath = jobId ? `/synthese?jobId=${encodeURIComponent(jobId)}` : '/synthese';
           setTimeout(() => navigate(synthesePath, { replace: true }), 2000);
         }
@@ -101,7 +68,7 @@ export default function ChatApp() {
   };
 
   return (
-    <div className="h-screen flex flex-col w-[80%] mx-auto p-4">
+    <div className="h-screen flex flex-col w-[80%] mx-auto p-4"> 
       <div
         ref={chatContainerRef}
         className="flex-1 overflow-y-auto bg-white shadow rounded p-4 space-y-2"
@@ -141,7 +108,7 @@ export default function ChatApp() {
         <button
           onClick={send}
           disabled={loading || !input.trim()}
-          className="px-4 py-2 bg-[#F16E00] text-white rounded disabled:opacity-50"
+          className="px-4 py-2 bg-black text-white rounded-none disabled:opacity-50"
           aria-label="Envoyer le message"
         >
           {loading ? 'Envoi…' : 'Envoyer'}
