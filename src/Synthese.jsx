@@ -75,7 +75,7 @@ export default function Synthese() {
         <div className="text-center">
           <button
             onClick={() => navigate('/')}
-            className="mt-4 bg-[#F16E00] hover:bg-orange-600 text-white px-6 py-3 rounded-xl text-lg font-semibold transition"
+            className="mt-4 bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-none text-lg font-semibold transition"
           >
             🔁 Recommencer
           </button>

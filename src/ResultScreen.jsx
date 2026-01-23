@@ -6,10 +6,9 @@ export default function ResultScreen({ summaryData }) {
   const [sent, setSent] = useState(false);
 
   const handleSend = async () => {
-    if (!email.trim()) return;
     setSending(true);
     try {
-      await fetch('https://design-chat-render-backend.onrender.com/send-summary', {
+      await fetch('/api/send-summary', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, summary: summaryData }),
@@ -86,7 +85,7 @@ export default function ResultScreen({ summaryData }) {
           <button
             onClick={handleSend}
             disabled={sending}
-            className="bg-[#F16E00] text-white px-4 py-2 rounded hover:bg-orange-700"
+            className="bg-black text-white px-4 py-2 rounded-none hover:bg-gray-800"
           >
             {sending ? "Envoi en cours..." : "Recevoir par email"}
           </button>
